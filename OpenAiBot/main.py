@@ -1,0 +1,58 @@
+import openai
+import logging
+from aiogram.types import Message
+from aiogram import Bot, Dispatcher, executor
+from environs import Env
+
+env = Env()
+env.read_env()
+
+bot_token = env('BOT_TOKEN')
+api_key = env('API_KEY')
+
+API_TOKEN: str = bot_token
+API_KEY: str = api_key
+
+logging.basicConfig(level=logging.INFO)
+
+bot: Bot = Bot(token=API_TOKEN, parse_mode='HTML')
+dp: Dispatcher = Dispatcher(bot)
+
+
+@dp.message_handler(commands='start')
+async def cmd_answer(message: Message):
+    question = message.get_args()
+    if not question:
+        await bot.send_message(chat_id=message.chat.id, text="Приветствую тебя, меня зовут Eva\n"
+                                                             "Я связана своей цифровой душой с ChatGPT\n"
+                                                             "Поэтому могу ответить на любой твой вопрос!🚀\n"
+                                                             "Задай интересующий тебя вопрос.")
+        return
+
+
+@dp.message_handler(commands=['help'])
+async def process_help_command(message: Message):
+    await message.answer('Просто напиши в чат любой интересующий тебя вопрос и получишь точный ответ\n'
+                         'Главное не забудь в конце поставить❓\n'
+                         'Кстати английский я тоже понимаю!')
+
+
+@dp.message_handler()
+async def process_other_text_answers(message: Message):
+    openai.api_key = API_KEY
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=f"Answer the following question: {message.text}",
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    answer = response["choices"][0]["text"].strip()
+
+    await bot.send_message(chat_id=message.chat.id, text=answer)
+
+
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)

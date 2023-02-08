@@ -1,7 +1,7 @@
 import openai
 import logging
 from aiogram.types import Message
-from aiogram import Bot, Dispatcher, executor
+from aiogram import Bot, Dispatcher, executor, types
 from environs import Env
 
 env = Env()
@@ -20,21 +20,22 @@ dp: Dispatcher = Dispatcher(bot)
 
 
 @dp.message_handler(commands='start')
-async def cmd_answer(message: Message):
+async def process_start_command(message: Message):
     question = message.get_args()
     if not question:
         await bot.send_message(chat_id=message.chat.id, text="Приветствую тебя, меня зовут Eva\n"
-                                                             "Я связана своей цифровой душой с ChatGPT\n"
+                                                             "Я связана своей цифровой душой с ChatGPT🤖\n"
                                                              "Поэтому могу ответить на любой твой вопрос!🚀\n"
-                                                             "Задай интересующий тебя вопрос.")
+                                                             "Задай интересующий тебя вопрос ⬇️")
         return
 
 
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: Message):
-    await message.answer('Просто напиши в чат любой интересующий тебя вопрос и получишь точный ответ\n'
+    await message.answer('Просто напиши в чат любой интересующий тебя вопрос и получишь точный ответ.\n'
                          'Главное не забудь в конце поставить❓\n'
-                         'Кстати английский я тоже понимаю!')
+                         'Я не всегда отвечаю быстро, дай мне немного времени⏳\n'
+                         'Кстати английский я понимаю намного лучше и отвечаю быстрее!')
 
 
 @dp.message_handler()
@@ -54,5 +55,14 @@ async def process_other_text_answers(message: Message):
     await bot.send_message(chat_id=message.chat.id, text=answer)
 
 
+async def set_main_menu(dp: Dispatcher):
+    # Создаем список с командами для кнопки menu
+    main_menu_commands = [
+        types.BotCommand(command='/start', description='Старт✅'),
+        types.BotCommand(command='/help', description='Справка по работе бота')
+    ]
+    await dp.bot.set_my_commands(main_menu_commands)
+
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True, on_startup=set_main_menu)

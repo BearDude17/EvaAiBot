@@ -56,7 +56,6 @@ async def process_other_text_answers(message: Message):
 
 
 async def set_main_menu(dp: Dispatcher):
-    # Создаем список с командами для кнопки menu
     main_menu_commands = [
         types.BotCommand(command='/start', description='Старт✅'),
         types.BotCommand(command='/help', description='Справка по работе бота')

@@ -1,8 +1,7 @@
-import openai
 import logging
-from aiogram.types import Message
-from aiogram import Bot, Dispatcher, executor, types
-from environs import Env
+from aiogram.types import Message # type: ignore
+from aiogram import Bot, Dispatcher, executor, types # type: ignore
+from environs import Env # type: ignore
 
 env = Env()
 env.read_env()
@@ -40,8 +39,8 @@ async def process_help_command(message: Message):
 
 @dp.message_handler()
 async def process_other_text_answers(message: Message):
-    openai.api_key = API_KEY
-    response = openai.Completion.create(
+    open.api_key = API_KEY
+    response = open.Completion.create(
         engine="text-davinci-003",
         prompt=f"Answer the following question: {message.text}",
         max_tokens=1024,
